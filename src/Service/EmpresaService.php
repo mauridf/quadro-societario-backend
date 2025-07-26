@@ -15,6 +15,17 @@ class EmpresaService {
         $empresa->setCnpj($dto->cnpj);
         $empresa->setDataFundacao($dto->dataFundacao);
 
+        // Verifica se existem sócios no DTO
+        if (!empty($dto->socios)) {
+            foreach ($dto->socios as $socioDto) {
+                $socio = new Socio();
+                $socio->setNome($socioDto->nome);
+                $socio->setCpf($socioDto->cpf);
+                $socio->setPercentualParticipacao($socioDto->percentualParticipacao);
+                $empresa->addSocio($socio);
+            }
+        }
+
         $this->em->persist($empresa);
         $this->em->flush();
 

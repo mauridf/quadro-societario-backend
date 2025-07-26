@@ -18,10 +18,12 @@ class EmpresaController extends AbstractController {
         EmpresaService $service,
         ValidatorInterface $validator
     ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        
         $dto = new EmpresaDTO();
-        $dto->nome = $request->get('nome');
-        $dto->cnpj = $request->get('cnpj');
-        $dto->dataFundacao = $request->get('dataFundacao') ? new \DateTime($request->get('dataFundacao')) : null;
+        $dto->nome = $data['nome'] ?? null;
+        $dto->cnpj = $data['cnpj'] ?? null;
+        $dto->dataFundacao = isset($data['dataFundacao']) ? new \DateTime($data['dataFundacao']) : null;
 
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {
@@ -35,16 +37,13 @@ class EmpresaController extends AbstractController {
     #[Route('', methods: ['GET'])]
     public function listAll(EmpresaService $service): JsonResponse {
         $empresas = $service->listarTodos();
-        return $this->json($empresas);
+        return $this->json($empresas, 200, [], ['groups' => 'empresa:read']);
     }
 
     #[Route('/{id}', methods: ['GET'])]
     public function show(int $id, EmpresaService $service): JsonResponse {
         $empresa = $service->buscarPorId($id);
-        if (!$empresa) {
-            return $this->json(['error' => 'Empresa não encontrada!'], 404);
-        }
-        return $this->json($empresa);
+        return $this->json($empresa, 200, [], ['groups' => 'empresa:read']);
     }
 
     #[Route('/{id}', methods: ['PUT'])]

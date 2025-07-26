@@ -17,4 +17,7 @@ class EmpresaDTO {
 
     #[Assert\Type(\DateTimeInterface::class)]
     public ?\DateTime $dataFundacao = null;
+    
+    /** @var SocioDTO[] */
+    public array $socios = [];
 }

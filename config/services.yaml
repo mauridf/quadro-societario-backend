@@ -26,5 +26,5 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Validator\CpfValidator:
         tags: [validator.constraint_validator]
-    App\Validator\CnpjValidator:
+    App\Validator\Constraints\CnpjValidator:
         tags: [validator.constraint_validator]

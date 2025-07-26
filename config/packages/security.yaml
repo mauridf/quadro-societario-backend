@@ -32,6 +32,8 @@ security:
     access_control:
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/users, methods: [POST], roles: PUBLIC_ACCESS }
+        - { path: ^/api/empresas, methods: [GET], roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/empresas, methods: [POST, PUT, DELETE], roles: ROLE_ADMIN }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
