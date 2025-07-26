@@ -1,0 +1,10 @@
+# Rotas dos controllers (usando attributes PHP)
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+# Rota de login JWT (remova a duplicação)
+api_login_check:
+    path: /api/login
