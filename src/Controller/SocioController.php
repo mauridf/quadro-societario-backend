@@ -19,25 +19,29 @@ class SocioController extends AbstractController {
         SocioService $service,
         ValidatorInterface $validator
     ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        
         $dto = new SocioDTO();
-        $dto->nome = $request->get('nome');
-        $dto->cpf = $request->get('cpf');
-        $dto->percentualParticipacao = (float) $request->get('percentualParticipacao');
+        $dto->nome = $data['nome'] ?? null;
+        $dto->cpf = $data['cpf'] ?? null;
+        $dto->percentualParticipacao = (float) ($data['percentualParticipacao'] ?? 0);
         $dto->empresaId = $empresaId;
 
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {
-            return $this->json(['errors' => (string) $errors], 400);
+            // ... tratamento de erros ...
         }
 
         $socio = $service->criarSocio($dto);
-        return $this->json($socio, 201);
+        // return $this->json($socio, 201);
+        return $this->json($socio, 201, [], ['groups' => 'socio:read']);
     }
 
     #[Route('', methods: ['GET'])]
     public function list(int $empresaId, SocioService $service): JsonResponse {
         $socios = $service->listarPorEmpresa($empresaId);
-        return $this->json($socios);
+        // return $this->json($socios);
+        return $this->json($socios, 200, [], ['groups' => 'socio:read']);
     }
 
     #[Route('/{socioId}', methods: ['GET'])]
@@ -46,7 +50,7 @@ class SocioController extends AbstractController {
         if (!$socio) {
             return $this->json(['error' => 'Sócio não encontrado!'], 404);
         }
-        return $this->json($socio);
+        return $this->json($socio, 200, [], ['groups' => 'socio:read']);
     }
 
     #[Route('/{socioId}', methods: ['PUT'])]
@@ -57,19 +61,27 @@ class SocioController extends AbstractController {
         SocioService $service,
         ValidatorInterface $validator
     ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        
         $dto = new SocioDTO();
-        $dto->nome = $request->get('nome');
-        $dto->cpf = $request->get('cpf');
-        $dto->percentualParticipacao = (float) $request->get('percentualParticipacao');
+        $dto->nome = $data['nome'] ?? null;
+        $dto->cpf = $data['cpf'] ?? null;
+        $dto->percentualParticipacao = isset($data['percentualParticipacao']) 
+            ? (float) $data['percentualParticipacao'] 
+            : null;
         $dto->empresaId = $empresaId;
 
-        $errors = $validator->validate($dto);
+        $errors = $validator->validate($dto, null, ['update']);
         if (count($errors) > 0) {
-            return $this->json(['errors' => (string) $errors], 400);
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], 400);
         }
 
         $socio = $service->atualizarSocio($socioId, $dto);
-        return $this->json($socio);
+        return $this->json($socio, 200, [], ['groups' => 'socio:read']);
     }
 
     #[Route('/{socioId}', methods: ['DELETE'])]

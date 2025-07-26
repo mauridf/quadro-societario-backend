@@ -49,9 +49,17 @@ class SocioService {
             throw new \InvalidArgumentException('Sócio não encontrado!');
         }
 
-        $socio->setNome($dto->nome);
-        $socio->setCpf($dto->cpf);
-        $socio->setPercentualParticipacao($dto->percentualParticipacao);
+        if ($dto->nome !== null) {
+            $socio->setNome($dto->nome);
+        }
+        
+        if ($dto->cpf !== null) {
+            $socio->setCpf($dto->cpf);
+        }
+        
+        if ($dto->percentualParticipacao !== null) {
+            $socio->setPercentualParticipacao($dto->percentualParticipacao);
+        }
 
         $this->em->flush();
         return $socio;

@@ -12,6 +12,9 @@ services:
             - ['@serializer.normalizer.object']
             - ['@serializer.encoder.json']
 
+    Symfony\Component\Serializer\Normalizer\AbstractNormalizer:
+        class: Symfony\Component\Serializer\Normalizer\AbstractNormalizer
+        public: false
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

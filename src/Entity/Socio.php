@@ -14,19 +14,24 @@ class Socio
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['socio:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['socio:read', 'socio:write'])]
     private ?string $nome = null;
 
     #[ORM\Column(length: 11)]
+    #[Groups(['socio:read'])]
     private ?string $cpf = null;
 
     #[ORM\Column]
+    #[Groups(['socio:read', 'socio:write'])]
     private ?float $percentualParticipacao = null;
 
     #[ORM\ManyToOne(targetEntity: Empresa::class, inversedBy: 'socios')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['socio:read'])]
     private ?Empresa $empresa = null;
 
     public function getId(): ?int
@@ -66,6 +71,18 @@ class Socio
     public function setPercentualParticipacao(float $percentualParticipacao): static
     {
         $this->percentualParticipacao = $percentualParticipacao;
+
+        return $this;
+    }
+
+    public function getEmpresa(): ?Empresa
+    {
+        return $this->empresa;
+    }
+
+    public function setEmpresa(?Empresa $empresa): static
+    {
+        $this->empresa = $empresa;
 
         return $this;
     }
