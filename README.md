@@ -1,4 +1,4 @@
-# 🏢 Sistema de Quadro Societário
+# 🏢 Sistema de Quadro Societário - Backend
 
 ## 📋 Descrição
 Sistema completo para cadastro de empresas e seu quadro societário, com:
@@ -10,7 +10,7 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 ## 🛠️ Tecnologias
 - **Backend**: Symfony 7, PHP 8.3+
 - **Banco de Dados**: PostgreSQL
-- **Frontend**: Angular 17 (próxima etapa)
+- **Frontend**: [Angular 17](https://gitlab.com/mauridf/quadro-societario-frontend)
 - **Autenticação**: JWT
 
 ## 🔧 Instalação
@@ -55,14 +55,21 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
    ```bash
    symfony serve -d
    ```
+   ou 
+   
+   ```bash
+   php -S localhost:8000 -t public
+   ```
 
 ## 🌐 Endpoints da API
 
 ### 🔐 Autenticação
 - `POST /api/login` - Login (retorna JWT)
+- `GET /api/auth/me` - Informações do Usuário Logado
 
 ### 👥 Usuários (ROLE_ADMIN)
 - `GET /api/users` - Listar todos
+- `GET /api/users/{id}` - Buscar Usuário por Id
 - `POST /api/users` - Criar novo
 - `PUT /api/users/{id}` - Atualizar
 - `DELETE /api/users/{id}` - Remover
@@ -70,10 +77,14 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 ### 🏢 Empresas
 - `GET /api/empresas` - Listar
 - `POST /api/empresas` - Criar
-- `GET /api/empresas/{id}/socios` - Listar sócios
+- `GET /api/empresas/{id}` - Buscar Empresa por Id
+- `PUT /api/empresas/{id}` - Atualizar
+- `DELETE /api/empresas/{id}` - Remover
 
 ### 👤 Sócios
 - `POST /api/empresas/{id}/socios` - Adicionar sócio
+- `GET /api/empresas/{empresaId}/socios` - Listar Sócios da Empresa
+- `GET /api/empresas/{empresaId}/socios/{socioId}` - Buscar Sócio por Id da Empresa
 - `PUT /api/empresas/{empresaId}/socios/{socioId}` - Atualizar
 - `DELETE /api/empresas/{empresaId}/socios/{socioId}` - Remover
 
@@ -83,7 +94,7 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 - CRUD de Empresas e Sócios
 - Validações customizadas (CPF/CNPJ)
 - Arquitetura SOLID
-- Frontend Angular (próxima etapa)
+- Frontend Angular [Angular 17](https://gitlab.com/mauridf/quadro-societario-frontend)
 
 ## ▶️ Como Executar
 
@@ -91,23 +102,19 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 ```bash
 symfony serve -d
 ```
+ou 
+```bash
+php -S localhost:8000 -t public
+```
 
 Acesse os endpoints via Postman ou Insomnia.
 
-### 🔜 Frontend (quando disponível)
+### 🔜 Frontend
 ```bash
 cd ../quadro-societario-frontend
 npm install
 ng serve
 ```
-
-## 📌 Próximos Passos
-1. Criar o frontend em Angular 17
-2. Implementar login no Angular
-
----
-
-💡 **Dica**: Teste todos os endpoints no Postman antes de seguir para o frontend!
 
 ### 🔍 Exemplo de teste:
 ```bash
