@@ -6,5 +6,5 @@ controllers:
     type: attribute
 
 # Rota de login JWT (remova a duplicação)
-api_login_check:
-    path: /api/login
+# api_login_check:
+#     path: /api/login

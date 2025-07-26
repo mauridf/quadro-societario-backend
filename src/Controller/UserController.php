@@ -9,24 +9,32 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/users')]
 class UserController extends AbstractController {
-    public function __construct(private UserService $service) {}
+    public function __construct(
+        private UserService $service,
+        private ValidatorInterface $validator
+    ) {}
 
     #[Route('', methods: ['POST'])]
-    public function create(
-        Request $request,
-        ValidatorInterface $validator
-    ): JsonResponse {
+    public function create(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+    
         $dto = new UserDTO();
-        $dto->email = $request->get('email');
-        $dto->password = $request->get('password');
-        $dto->roles = $request->get('roles', ['ROLE_USER']);
+        $dto->email = $data['email'] ?? null;
+        $dto->password = $data['password'] ?? null;
+        $dto->roles = $data['roles'] ?? ['ROLE_USER'];
 
-        $errors = $validator->validate($dto);
+        $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return $this->json(['errors' => (string) $errors], 400);
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], 400);
         }
 
         $user = $this->service->criarUser($dto);
@@ -34,9 +42,13 @@ class UserController extends AbstractController {
     }
 
     #[Route('', methods: ['GET'])]
-    public function listAll(): JsonResponse {
+    public function listAll(SerializerInterface $serializer): JsonResponse 
+    {
         $users = $this->service->listarTodos();
-        return $this->json($users);
+        
+        return $this->json($users, 200, [], [
+            'groups' => ['user:read']
+        ]);
     }
 
     #[Route('/{id}', methods: ['GET'])]
@@ -54,14 +66,21 @@ class UserController extends AbstractController {
         Request $request,
         ValidatorInterface $validator
     ): JsonResponse {
+        // Decodifica o conteúdo JSON da requisição
+        $data = json_decode($request->getContent(), true);
+        
         $dto = new UserDTO();
-        $dto->email = $request->get('email');
-        $dto->password = $request->get('password');
-        $dto->roles = $request->get('roles', ['ROLE_USER']);
+        $dto->email = $data['email'] ?? null;
+        $dto->password = $data['password'] ?? null;
+        $dto->roles = $data['roles'] ?? ['ROLE_USER'];
 
-        $errors = $validator->validate($dto);
+        $errors = $this->validator->validate($dto);
         if (count($errors) > 0) {
-            return $this->json(['errors' => (string) $errors], 400);
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
+            }
+            return $this->json(['errors' => $errorMessages], 400);
         }
 
         $user = $this->service->atualizarUser($id, $dto);

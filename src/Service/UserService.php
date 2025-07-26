@@ -25,7 +25,8 @@ class UserService {
         return $user;
     }
 
-    public function listarTodos(): array {
+    public function listarTodos(): array 
+    {
         return $this->em->getRepository(User::class)->findAll();
     }
 
@@ -39,13 +40,17 @@ class UserService {
             throw new \InvalidArgumentException('Usuário não encontrado!');
         }
 
-        $user->setEmail($dto->email);
+        if ($dto->email !== null) {
+            $user->setEmail($dto->email);
+        }
         
-        if ($dto->password) {
+        if ($dto->password !== null) {
             $user->setPassword($this->passwordHasher->hashPassword($user, $dto->password));
         }
         
-        $user->setRoles($dto->roles);
+        if (!empty($dto->roles)) {
+            $user->setRoles($dto->roles);
+        }
 
         $this->em->flush();
         return $user;

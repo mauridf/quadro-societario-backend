@@ -6,6 +6,12 @@
 parameters:
 
 services:
+    Symfony\Component\Serializer\SerializerInterface:
+        class: Symfony\Component\Serializer\Serializer
+        arguments:
+            - ['@serializer.normalizer.object']
+            - ['@serializer.encoder.json']
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
