@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: EmpresaRepository::class)]
-#[ApiResource]
+#[ApiResource(normalizationContext: ['groups' => ['empresa:read']],)]
 class Empresa
 {
     #[ORM\Id]
@@ -33,6 +33,7 @@ class Empresa
     private ?\DateTimeInterface $dataFundacao = null;
 
     #[ORM\OneToMany(targetEntity: Socio::class, mappedBy: 'empresa', cascade: ['persist', 'remove'])]
+    #[Groups(['empresa:read'])]
     private Collection $socios;
 
     public function __construct() {
@@ -68,15 +69,31 @@ class Empresa
         return $this;
     }
 
-    public function getDataFundacao(): ?string
+    public function getDataFundacao(): ?\DateTimeInterface
+    {
+        return $this->dataFundacao;
+    }
+
+    #[Groups(['empresa:read'])]
+    public function getDataFundacaoSerializada(): ?string
     {
         return $this->dataFundacao?->format('Y-m-d');
     }
 
-    public function setDataFundacao(?\DateTime $dataFundacao): static
+    public function setDataFundacao(?\DateTimeInterface $dataFundacao): self
     {
         $this->dataFundacao = $dataFundacao;
+        return $this;
+    }
 
+    // Método adicional para aceitar string
+    public function setDataFundacaoFromString(?string $dataString): self
+    {
+        if ($dataString !== null) {
+            $this->dataFundacao = new \DateTime($dataString);
+        } else {
+            $this->dataFundacao = null;
+        }
         return $this;
     }
 

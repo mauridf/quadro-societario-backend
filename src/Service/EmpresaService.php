@@ -5,25 +5,20 @@ namespace App\Service;
 use App\Entity\Empresa;
 use App\DTO\EmpresaDTO;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class EmpresaService {
     public function __construct(private EntityManagerInterface $em) {}
 
-    public function criarEmpresa(EmpresaDTO $dto): Empresa {
+    public function criarEmpresa(EmpresaDTO $dto): Empresa
+    {
         $empresa = new Empresa();
         $empresa->setNome($dto->nome);
         $empresa->setCnpj($dto->cnpj);
-        $empresa->setDataFundacao($dto->dataFundacao);
-
-        // Verifica se existem sócios no DTO
-        if (!empty($dto->socios)) {
-            foreach ($dto->socios as $socioDto) {
-                $socio = new Socio();
-                $socio->setNome($socioDto->nome);
-                $socio->setCpf($socioDto->cpf);
-                $socio->setPercentualParticipacao($socioDto->percentualParticipacao);
-                $empresa->addSocio($socio);
-            }
+        
+        // Use o método que converte string para DateTime
+        if ($dto->dataFundacao !== null) {
+            $empresa->setDataFundacao(new \DateTime($dto->dataFundacao));
         }
 
         $this->em->persist($empresa);
@@ -32,8 +27,10 @@ class EmpresaService {
         return $empresa;
     }
 
-    public function listarComPaginacao(int $page, int $pageSize, ?string $search = null): array {
-        $queryBuilder = $this->em->getRepository(Empresa::class)->createQueryBuilder('e');
+    public function listarComPaginacao(int $page = 1, int $pageSize = 10, ?string $search = null): array
+    {
+        $queryBuilder = $this->em->getRepository(Empresa::class)
+            ->createQueryBuilder('e');
         
         if ($search) {
             $queryBuilder->where('e.nome LIKE :search')
@@ -42,14 +39,19 @@ class EmpresaService {
         
         $query = $queryBuilder->getQuery();
         
-        // Paginação
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+        $paginator = new Paginator($query);
         $paginator->getQuery()
             ->setFirstResult($pageSize * ($page - 1))
             ->setMaxResults($pageSize);
         
+        // Convertemos para array para garantir a serialização correta
+        $data = [];
+        foreach ($paginator as $empresa) {
+            $data[] = $empresa;
+        }
+        
         return [
-            'items' => $paginator->getIterator(),
+            'data' => $data, // Mantendo consistência com o nome usado no frontend
             'total' => count($paginator)
         ];
     }
