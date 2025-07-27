@@ -32,8 +32,26 @@ class EmpresaService {
         return $empresa;
     }
 
-    public function listarTodos(): array {
-        return $this->em->getRepository(Empresa::class)->findAll();
+    public function listarComPaginacao(int $page, int $pageSize, ?string $search = null): array {
+        $queryBuilder = $this->em->getRepository(Empresa::class)->createQueryBuilder('e');
+        
+        if ($search) {
+            $queryBuilder->where('e.nome LIKE :search')
+                        ->setParameter('search', '%'.$search.'%');
+        }
+        
+        $query = $queryBuilder->getQuery();
+        
+        // Paginação
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+        $paginator->getQuery()
+            ->setFirstResult($pageSize * ($page - 1))
+            ->setMaxResults($pageSize);
+        
+        return [
+            'items' => $paginator->getIterator(),
+            'total' => count($paginator)
+        ];
     }
 
     public function buscarPorId(int $id): ?Empresa {

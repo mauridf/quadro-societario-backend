@@ -30,7 +30,7 @@ class Empresa
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Groups(['empresa:read'])]
-    private ?\DateTime $dataFundacao = null;
+    private ?\DateTimeInterface $dataFundacao = null;
 
     #[ORM\OneToMany(targetEntity: Socio::class, mappedBy: 'empresa', cascade: ['persist', 'remove'])]
     private Collection $socios;
@@ -68,9 +68,9 @@ class Empresa
         return $this;
     }
 
-    public function getDataFundacao(): ?\DateTime
+    public function getDataFundacao(): ?string
     {
-        return $this->dataFundacao;
+        return $this->dataFundacao?->format('Y-m-d');
     }
 
     public function setDataFundacao(?\DateTime $dataFundacao): static

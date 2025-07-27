@@ -16,7 +16,7 @@ class EmpresaDTO {
     public string $cnpj;
 
     #[Assert\Type(\DateTimeInterface::class)]
-    public ?\DateTime $dataFundacao = null;
+    public ?string $dataFundacao = null;
     
     /** @var SocioDTO[] */
     public array $socios = [];

@@ -21,9 +21,19 @@ class AuthController extends AbstractController
         private JWTTokenManagerInterface $jwtManager
     ) {}
 
-    #[Route('/login', methods: ['POST'])]
+    #[Route('/login', methods: ['POST', 'OPTIONS'])]
     public function login(Request $request): JsonResponse
     {
+        // Resposta para requisições OPTIONS (preflight)
+        if ($request->getMethod() === 'OPTIONS') {
+            return new JsonResponse([], 204, [
+                'Access-Control-Allow-Origin' => 'http://localhost:4200',
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Allow-Methods' => 'POST, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Content-Type, Authorization'
+            ]);
+        }
+
         $data = json_decode($request->getContent(), true);
         
         $email = $data['email'] ?? '';

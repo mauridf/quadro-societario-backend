@@ -35,9 +35,17 @@ class EmpresaController extends AbstractController {
     }
 
     #[Route('', methods: ['GET'])]
-    public function listAll(EmpresaService $service): JsonResponse {
-        $empresas = $service->listarTodos();
-        return $this->json($empresas, 200, [], ['groups' => 'empresa:read']);
+    public function listAll(Request $request, EmpresaService $service): JsonResponse {
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
+        $search = $request->query->get('search', null);
+
+        $result = $service->listarComPaginacao($page, $pageSize, $search);
+        
+        return $this->json([
+            'data' => $result['items'],
+            'total' => $result['total']
+        ], 200, [], ['groups' => 'empresa:read']);
     }
 
     #[Route('/{id}', methods: ['GET'])]
