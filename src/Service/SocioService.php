@@ -35,6 +35,35 @@ class SocioService {
         return $this->em->getRepository(Socio::class)->findBy(['empresa' => $empresaId]);
     }
 
+    public function listarComPaginacao(int $page = 1, int $pageSize = 10, ?string $search = null): array
+    {
+        $queryBuilder = $this->em->getRepository(Socio::class)
+            ->createQueryBuilder('e');
+        
+        if ($search) {
+            $queryBuilder->where('e.nome LIKE :search')
+                        ->setParameter('search', '%'.$search.'%');
+        }
+        
+        $query = $queryBuilder->getQuery();
+        
+        $paginator = new Paginator($query);
+        $paginator->getQuery()
+            ->setFirstResult($pageSize * ($page - 1))
+            ->setMaxResults($pageSize);
+        
+        // Convertemos para array para garantir a serialização correta
+        $data = [];
+        foreach ($paginator as $socio) {
+            $data[] = $socio;
+        }
+        
+        return [
+            'data' => $data, // Mantendo consistência com o nome usado no frontend
+            'total' => count($paginator)
+        ];
+    }
+
     public function buscarPorId(int $socioId, int $empresaId): ?Socio {
         $socio = $this->em->getRepository(Socio::class)->find($socioId);
         if ($socio) {

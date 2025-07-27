@@ -45,6 +45,29 @@ class SocioController extends AbstractController {
         return $this->json($socios, 200, [], ['groups' => 'socio:read']);
     }
 
+    #[Route('', methods: ['GET'])]
+    public function listAll(
+        Request $request, 
+        SocioService $service,
+        SerializerInterface $serializer
+    ): JsonResponse
+    {
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
+        $search = $request->query->get('search', null);
+
+        $result = $service->listarComPaginacao($page, $pageSize, $search);
+        
+        $data = $serializer->normalize($result['data'], null, [
+            'groups' => 'socio:read'
+        ]);
+        
+        return $this->json([
+            'data' => $data,
+            'total' => $result['total']
+        ]);
+    }
+
     #[Route('/{socioId}', methods: ['GET'])]
     public function show(int $empresaId, int $socioId, SocioService $service): JsonResponse {
         $socio = $service->buscarPorId($socioId, $empresaId);
