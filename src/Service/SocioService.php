@@ -31,17 +31,15 @@ class SocioService {
         return $socio;
     }
 
-    public function listarPorEmpresa(int $empresaId): array {
-        return $this->em->getRepository(Socio::class)->findBy(['empresa' => $empresaId]);
-    }
-
-    public function listarComPaginacao(int $page = 1, int $pageSize = 10, ?string $search = null): array
+    public function listarPorEmpresaComPaginacao(int $empresaId, int $page = 1, int $pageSize = 10, ?string $search = null): array
     {
         $queryBuilder = $this->em->getRepository(Socio::class)
-            ->createQueryBuilder('e');
+            ->createQueryBuilder('s')
+            ->where('s.empresa = :empresaId')
+            ->setParameter('empresaId', $empresaId);
         
         if ($search) {
-            $queryBuilder->where('e.nome LIKE :search')
+            $queryBuilder->andWhere('s.nome LIKE :search OR s.cpf LIKE :search')
                         ->setParameter('search', '%'.$search.'%');
         }
         
@@ -52,14 +50,43 @@ class SocioService {
             ->setFirstResult($pageSize * ($page - 1))
             ->setMaxResults($pageSize);
         
-        // Convertemos para array para garantir a serialização correta
         $data = [];
         foreach ($paginator as $socio) {
             $data[] = $socio;
         }
         
         return [
-            'data' => $data, // Mantendo consistência com o nome usado no frontend
+            'data' => $data,
+            'total' => count($paginator)
+        ];
+    }
+
+    public function listarTodosSocios(int $page = 1, int $pageSize = 10, ?string $search = null): array
+    {
+        $queryBuilder = $this->em->getRepository(Socio::class)
+            ->createQueryBuilder('s')
+            ->leftJoin('s.empresa', 'e')
+            ->addSelect('e');
+        
+        if ($search) {
+            $queryBuilder->where('s.nome LIKE :search OR s.cpf LIKE :search')
+                        ->setParameter('search', '%'.$search.'%');
+        }
+        
+        $query = $queryBuilder->getQuery();
+        
+        $paginator = new Paginator($query);
+        $paginator->getQuery()
+            ->setFirstResult($pageSize * ($page - 1))
+            ->setMaxResults($pageSize);
+        
+        $data = [];
+        foreach ($paginator as $socio) {
+            $data[] = $socio;
+        }
+        
+        return [
+            'data' => $data,
             'total' => count($paginator)
         ];
     }

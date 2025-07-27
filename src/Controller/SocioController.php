@@ -39,14 +39,30 @@ class SocioController extends AbstractController {
     }
 
     #[Route('', methods: ['GET'])]
-    public function list(int $empresaId, SocioService $service): JsonResponse {
-        $socios = $service->listarPorEmpresa($empresaId);
-        // return $this->json($socios);
-        return $this->json($socios, 200, [], ['groups' => 'socio:read']);
+    public function list(
+        int $empresaId, 
+        Request $request,
+        SocioService $service,
+        SerializerInterface $serializer
+    ): JsonResponse {
+        $page = $request->query->getInt('page', 1);
+        $pageSize = $request->query->getInt('pageSize', 10);
+        $search = $request->query->get('search', null);
+
+        $result = $service->listarPorEmpresaComPaginacao($empresaId, $page, $pageSize, $search);
+        
+        $data = $serializer->normalize($result['data'], null, [
+            'groups' => 'socio:read'
+        ]);
+        
+        return $this->json([
+            'data' => $data,
+            'total' => $result['total']
+        ]);
     }
 
-    #[Route('', methods: ['GET'])]
-    public function listAll(
+    #[Route('/api/socios', name: 'socios_list_all', methods: ['GET'])]
+    public function listAllSocios(
         Request $request, 
         SocioService $service,
         SerializerInterface $serializer
@@ -56,7 +72,7 @@ class SocioController extends AbstractController {
         $pageSize = $request->query->getInt('pageSize', 10);
         $search = $request->query->get('search', null);
 
-        $result = $service->listarComPaginacao($page, $pageSize, $search);
+        $result = $service->listarTodosSocios($page, $pageSize, $search);
         
         $data = $serializer->normalize($result['data'], null, [
             'groups' => 'socio:read'
