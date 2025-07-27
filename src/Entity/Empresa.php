@@ -21,11 +21,11 @@ class Empresa
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['empresa:read', 'empresa:write'])]
+    #[Groups(['empresa:read', 'empresa:simple', 'empresa:write'])]
     private ?string $nome = null;
 
     #[ORM\Column(length: 14)]
-    #[Groups(['empresa:read'])]
+    #[Groups(['empresa:read', 'empresa:simple'])]
     private ?string $cnpj = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -40,16 +40,19 @@ class Empresa
         $this->socios = new ArrayCollection();
     }
 
+    #[Groups(['empresa:simple'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Groups(['empresa:simple'])]
     public function getNome(): ?string
     {
         return $this->nome;
     }
 
+    #[Groups(['empresa:simple'])]
     public function setNome(string $nome): static
     {
         $this->nome = $nome;

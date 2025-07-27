@@ -31,7 +31,7 @@ class Socio
 
     #[ORM\ManyToOne(targetEntity: Empresa::class, inversedBy: 'socios')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['socio:read'])] // NÃO incluir empresa:read aqui para evitar recursão infinita
+    #[Groups(['socio:read', 'socio:details', 'empresa:simple'])]
     private ?Empresa $empresa = null;
 
     public function getId(): ?int
@@ -64,6 +64,11 @@ class Socio
     public function getPercentualParticipacao(): ?float
     {
         return $this->percentualParticipacao;
+    }
+
+    public function getEmpresaId(): ?int
+    {
+        return $this->empresa?->getId();
     }
 
     public function setPercentualParticipacao(float $percentualParticipacao): static

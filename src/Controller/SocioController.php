@@ -11,9 +11,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route('/api/empresas/{empresaId}/socios')]
+#[Route('/api')]
 class SocioController extends AbstractController {
-    #[Route('', methods: ['POST'])]
+    #[Route('/empresas/{empresaId}/socios', methods: ['POST'])]
     public function create(
         int $empresaId,
         Request $request,
@@ -30,15 +30,19 @@ class SocioController extends AbstractController {
 
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {
-            // ... tratamento de erros ...
+        $errorMessages = [];
+        foreach ($errors as $error) {
+            $errorMessages[] = $error->getPropertyPath() . ': ' . $error->getMessage();
         }
+        return $this->json(['errors' => $errorMessages], 400);
+    }
 
         $socio = $service->criarSocio($dto);
         // return $this->json($socio, 201);
         return $this->json($socio, 201, [], ['groups' => 'socio:read']);
     }
 
-    #[Route('', methods: ['GET'])]
+    #[Route('/empresas/{empresaId}/socios', methods: ['GET'])]
     public function list(
         int $empresaId, 
         Request $request,
@@ -61,13 +65,12 @@ class SocioController extends AbstractController {
         ]);
     }
 
-    #[Route('/api/socios', name: 'socios_list_all', methods: ['GET'])]
+    #[Route('/socios', name: 'socios_list_all', methods: ['GET'])]
     public function listAllSocios(
         Request $request, 
         SocioService $service,
         SerializerInterface $serializer
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $page = $request->query->getInt('page', 1);
         $pageSize = $request->query->getInt('pageSize', 10);
         $search = $request->query->get('search', null);
@@ -75,7 +78,7 @@ class SocioController extends AbstractController {
         $result = $service->listarTodosSocios($page, $pageSize, $search);
         
         $data = $serializer->normalize($result['data'], null, [
-            'groups' => 'socio:read'
+            'groups' => ['socio:read', 'socio:details', 'empresa:simple'] 
         ]);
         
         return $this->json([
@@ -84,7 +87,7 @@ class SocioController extends AbstractController {
         ]);
     }
 
-    #[Route('/{socioId}', methods: ['GET'])]
+    #[Route('/empresas/{empresaId}/socios/{socioId}', methods: ['GET'])]
     public function show(int $empresaId, int $socioId, SocioService $service): JsonResponse {
         $socio = $service->buscarPorId($socioId, $empresaId);
         if (!$socio) {
@@ -93,7 +96,7 @@ class SocioController extends AbstractController {
         return $this->json($socio, 200, [], ['groups' => 'socio:read']);
     }
 
-    #[Route('/{socioId}', methods: ['PUT'])]
+    #[Route('/empresas/{empresaId}/socios/{socioId}', methods: ['PUT'])]
     public function update(
         int $empresaId,
         int $socioId,
@@ -124,7 +127,7 @@ class SocioController extends AbstractController {
         return $this->json($socio, 200, [], ['groups' => 'socio:read']);
     }
 
-    #[Route('/{socioId}', methods: ['DELETE'])]
+    #[Route('/empresas/{empresaId}/socios/{socioId}', methods: ['DELETE'])]
     public function delete(int $empresaId, int $socioId, SocioService $service): JsonResponse {
         $service->removerSocio($socioId, $empresaId);
         return $this->json(null, 204);

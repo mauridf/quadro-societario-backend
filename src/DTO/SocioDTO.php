@@ -25,5 +25,6 @@ class SocioDTO {
     )]
     public ?float $percentualParticipacao = null;
     
+    #[Assert\NotNull(message: "Empresa é obrigatória", groups: ["create"])]
     public ?int $empresaId = null;
 }

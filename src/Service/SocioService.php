@@ -6,6 +6,7 @@ use App\Entity\Socio;
 use App\DTO\SocioDTO;
 use App\Repository\EmpresaRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class SocioService {
     public function __construct(
