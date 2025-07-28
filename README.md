@@ -10,7 +10,7 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 ## 🛠️ Tecnologias
 - **Backend**: Symfony 7, PHP 8.3+
 - **Banco de Dados**: PostgreSQL
-- **Frontend**: [Angular 17](https://gitlab.com/mauridf/quadro-societario-frontend)
+- **Frontend**: [Angular 17](https://github.com/mauridf/quadro-societario-frontend)
 - **Autenticação**: JWT
 
 ## 🔧 Instalação
@@ -94,7 +94,7 @@ Sistema completo para cadastro de empresas e seu quadro societário, com:
 - CRUD de Empresas e Sócios
 - Validações customizadas (CPF/CNPJ)
 - Arquitetura SOLID
-- Frontend Angular [Angular 17](https://gitlab.com/mauridf/quadro-societario-frontend)
+- Frontend Angular [Angular 17](https://github.com/mauridf/quadro-societario-frontend)
 
 ## ▶️ Como Executar
 
